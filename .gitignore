@@ -27,6 +27,19 @@ go.work.sum
 # env file
 .env
 
+# Local toolchains and caches
+.tools/
+.gomodcache/
+.gopath/
+
+# Local binaries
+workemailchecker
+main
+
+*.log
+go*.tar.gz
+go*.zip
+
 # Editor/IDE
 # .idea/
 # .vscode/

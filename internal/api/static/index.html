@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WorkEmailChecker - Email Validation Service</title>
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%23764ba2'/%3E%3Cpath d='M20 30h60v40H20z' fill='%23fff'/%3E%3Cpath d='M20 30l30 25 30-25' stroke='%23764ba2' stroke-width='6' fill='none'/%3E%3C/svg%3E"/>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    <style>
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .glass-effect {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .result-card {
+            animation: slideUp 0.3s ease-out;
+        }
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+<body class="min-h-screen gradient-bg flex items-center justify-center p-4">
+    <div class="w-full max-w-2xl">
+        <!-- Header -->
+        <div class="text-center mb-8">
+            <div class="inline-flex items-center justify-center w-16 h-16 bg-white rounded-full mb-4">
+                <i data-lucide="mail-check" class="w-8 h-8 text-purple-600"></i>
+            </div>
+            <h1 class="text-4xl font-bold text-white mb-2">WorkEmailChecker</h1>
+            <p class="text-purple-100 text-lg">Instantly validate and classify email addresses</p>
+        </div>
+
+        <!-- Main Card -->
+        <div class="glass-effect rounded-2xl p-8 shadow-2xl">
+            <!-- Input Section -->
+            <div class="mb-6">
+                <label for="email" class="block text-white text-sm font-medium mb-2">
+                    Email Address
+                </label>
+                <div class="flex gap-3">
+                    <input 
+                        type="email" 
+                        id="email" 
+                        placeholder="Enter email address to validate..."
+                        class="flex-1 px-4 py-3 rounded-lg bg-white/20 text-white placeholder-white/70 border border-white/30 focus:outline-none focus:ring-2 focus:ring-white/50 focus:border-transparent"
+                    >
+                    <button 
+                        id="checkBtn"
+                        class="px-6 py-3 bg-white text-purple-600 font-semibold rounded-lg hover:bg-purple-50 transition-colors duration-200 flex items-center gap-2"
+                    >
+                        <i data-lucide="search" class="w-4 h-4"></i>
+                        Check
+                    </button>
+                </div>
+                <div class="mt-3 flex items-center gap-4 text-white/80 text-sm">
+                    <label class="inline-flex items-center gap-2">
+                        <input type="checkbox" id="useAI" class="rounded">
+                        <span>Slow, higher-accuracy check (AI)</span>
+                    </label>
+                    <span class="text-white/60">AI rate limit: 0.5 RPS</span>
+                </div>
+            </div>
+
+            <!-- Loading State -->
+            <div id="loading" class="hidden text-center py-4">
+                <div class="inline-flex items-center gap-2 text-white">
+                    <div class="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                    Validating email...
+                </div>
+            </div>
+
+            <!-- Results Section -->
+            <div id="results" class="hidden">
+                <!-- Status Badge -->
+                <div class="mb-4">
+                    <div id="statusBadge" class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-sm font-medium">
+                        <!-- Status will be populated here -->
+                    </div>
+                </div>
+
+                <!-- Result Details -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <!-- Basic Info -->
+                    <div class="bg-white/10 rounded-lg p-4">
+                        <h3 class="text-white font-semibold mb-3 flex items-center gap-2">
+                            <i data-lucide="info" class="w-4 h-4"></i>
+                            Basic Information
+                        </h3>
+                        <div class="space-y-2 text-sm">
+                            <div class="flex justify-between">
+                                <span class="text-white/70">Syntax:</span>
+                                <span id="syntaxValid" class="text-white font-medium">--</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-white/70">Domain:</span>
+                                <span id="domainValid" class="text-white font-medium">--</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-white/70">MX Records:</span>
+                                <span id="mxRecords" class="text-white font-medium">--</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Classification -->
+                    <div class="bg-white/10 rounded-lg p-4">
+                        <h3 class="text-white font-semibold mb-3 flex items-center gap-2">
+                            <i data-lucide="tag" class="w-4 h-4"></i>
+                            Classification
+                        </h3>
+                        <div class="space-y-2 text-sm">
+                            <div class="flex justify-between">
+                                <span class="text-white/70">Type:</span>
+                                <span id="providerType" class="text-white font-medium">--</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-white/70">Provider:</span>
+                                <span id="providerName" class="text-white font-medium">--</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-white/70">Disposable:</span>
+                                <span id="isDisposable" class="text-white font-medium">--</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Corporate Info (if applicable) -->
+                <div id="corporateInfo" class="hidden mt-4 bg-white/10 rounded-lg p-4">
+                    <h3 class="text-white font-semibold mb-2 flex items-center gap-2">
+                        <i data-lucide="building" class="w-4 h-4"></i>
+                        Corporate Information
+                    </h3>
+                    <div class="text-sm text-white">
+                        <span class="text-white/70">Corporate Domain:</span>
+                        <span id="corporateDomain" class="font-medium ml-2">--</span>
+                    </div>
+                </div>
+
+                <!-- Message -->
+                <div class="mt-4 p-3 bg-white/10 rounded-lg">
+                    <p id="message" class="text-white text-sm text-center">--</p>
+                </div>
+            </div>
+
+            <!-- API Documentation Link -->
+            <div class="mt-6 text-center">
+                <a href="/docs" class="text-white/80 hover:text-white text-sm underline transition-colors">
+                    View API Documentation
+                </a>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="text-center mt-6 text-purple-100 text-sm">
+            <p>Rate limit: 5 requests per second • 
+                <a href="https://github.com/Sinopsys/work-email-checker" class="hover:text-white underline">GitHub</a>
+            </p>
+        </div>
+    </div>
+
+    <script>
+        // Initialize Lucide icons
+        lucide.createIcons();
+
+        // DOM elements
+        const emailInput = document.getElementById('email');
+        const checkBtn = document.getElementById('checkBtn');
+        const useAI = document.getElementById('useAI');
+        const loading = document.getElementById('loading');
+        const results = document.getElementById('results');
+
+        // Result elements
+        const statusBadge = document.getElementById('statusBadge');
+        const syntaxValid = document.getElementById('syntaxValid');
+        const domainValid = document.getElementById('domainValid');
+        const mxRecords = document.getElementById('mxRecords');
+        const providerType = document.getElementById('providerType');
+        const providerName = document.getElementById('providerName');
+        const isDisposable = document.getElementById('isDisposable');
+        const corporateInfo = document.getElementById('corporateInfo');
+        const corporateDomain = document.getElementById('corporateDomain');
+        const message = document.getElementById('message');
+
+        // Check email function
+        async function checkEmail() {
+            const email = emailInput.value.trim();
+            
+            if (!email) {
+                alert('Please enter an email address');
+                return;
+            }
+
+            // Show loading state
+            loading.classList.remove('hidden');
+            results.classList.add('hidden');
+            checkBtn.disabled = true;
+
+            try {
+                const response = await fetch('/api/check', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ email, mode: useAI.checked ? 'ai' : undefined })
+                });
+
+                const data = await response.json();
+
+                if (response.status === 429) {
+                    alert('Rate limit exceeded. Please try again in a minute.');
+                    return;
+                }
+                if (!response.ok) {
+                    alert('Error: ' + response.status);
+                    return;
+                }
+
+                displayResults(data);
+            } catch (error) {
+                console.error('Error:', error);
+                alert('An error occurred while checking the email.');
+            } finally {
+                loading.classList.add('hidden');
+                results.classList.remove('hidden');
+                checkBtn.disabled = false;
+            }
+        }
+
+        // Display results function
+        function displayResults(data) {
+            // Update status badge
+            if (data.valid) {
+                if (data.is_corporate) {
+                    statusBadge.className = 'inline-flex items-center gap-2 px-3 py-1 rounded-full text-sm font-medium bg-green-500 text-white';
+                    statusBadge.innerHTML = '<i data-lucide="check-circle" class="w-4 h-4"></i> Corporate Email';
+                } else if (data.is_personal) {
+                    statusBadge.className = 'inline-flex items-center gap-2 px-3 py-1 rounded-full text-sm font-medium bg-blue-500 text-white';
+                    statusBadge.innerHTML = '<i data-lucide="user" class="w-4 h-4"></i> Personal Email';
+                } else {
+                    statusBadge.className = 'inline-flex items-center gap-2 px-3 py-1 rounded-full text-sm font-medium bg-yellow-500 text-white';
+                    statusBadge.innerHTML = '<i data-lucide="mail" class="w-4 h-4"></i> Valid Email';
+                }
+            } else {
+                statusBadge.className = 'inline-flex items-center gap-2 px-3 py-1 rounded-full text-sm font-medium bg-red-500 text-white';
+                statusBadge.innerHTML = '<i data-lucide="x-circle" class="w-4 h-4"></i> Invalid Email';
+            }
+
+            // Update basic info
+            syntaxValid.textContent = data.syntax_valid ? '✓ Valid' : '✗ Invalid';
+            syntaxValid.className = data.syntax_valid ? 'text-green-400 font-medium' : 'text-red-400 font-medium';
+            
+            domainValid.textContent = data.domain_valid ? '✓ Valid' : '✗ Invalid';
+            domainValid.className = data.domain_valid ? 'text-green-400 font-medium' : 'text-red-400 font-medium';
+            
+            mxRecords.textContent = data.mx_records_found ? '✓ Found' : '✗ Not Found';
+            mxRecords.className = data.mx_records_found ? 'text-green-400 font-medium' : 'text-red-400 font-medium';
+
+            // Update classification
+            providerType.textContent = data.provider_type || 'Unknown';
+            providerName.textContent = data.provider_name || 'Unknown';
+            isDisposable.textContent = data.is_disposable ? 'Yes' : 'No';
+            isDisposable.className = data.is_disposable ? 'text-red-400 font-medium' : 'text-green-400 font-medium';
+
+            // Update corporate info
+            if (data.corporate_domain) {
+                corporateInfo.classList.remove('hidden');
+                corporateDomain.textContent = data.corporate_domain;
+            } else {
+                corporateInfo.classList.add('hidden');
+            }
+
+            // Update message
+            message.textContent = data.message || 'No additional information';
+
+            // Refresh icons
+            lucide.createIcons();
+        }
+
+        // Event listeners
+        checkBtn.addEventListener('click', checkEmail);
+        emailInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                checkEmail();
+            }
+        });
+
+        // Focus on input on load
+        emailInput.focus();
+    </script>
+</body>
+</html>

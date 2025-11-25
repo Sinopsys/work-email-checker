@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API Documentation - WorkEmailChecker</title>
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%23764ba2'/%3E%3Cpath d='M20 30h60v40H20z' fill='%23fff'/%3E%3Cpath d='M20 30l30 25 30-25' stroke='%23764ba2' stroke-width='6' fill='none'/%3E%3C/svg%3E"/>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    <style>
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .glass-effect {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        code {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 0.2em 0.4em;
+            border-radius: 0.25em;
+            font-family: 'Courier New', monospace;
+        }
+        pre {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 1em;
+            border-radius: 0.5em;
+            overflow-x: auto;
+        }
+        pre code {
+            background: none;
+            padding: 0;
+        }
+    </style>
+</head>
+<body class="min-h-screen gradient-bg text-white">
+    <div class="container mx-auto px-4 py-8 max-w-4xl">
+        <!-- Header -->
+        <div class="text-center mb-8">
+            <a href="/" class="inline-flex items-center justify-center w-16 h-16 bg-white rounded-full mb-4 hover:opacity-90" title="Back to Home">
+                <i data-lucide="file-text" class="w-8 h-8 text-purple-600"></i>
+            </a>
+            <h1 class="text-4xl font-bold mb-2">API Documentation</h1>
+            <p class="text-purple-100 text-lg">WorkEmailChecker REST API Reference</p>
+        </div>
+
+        <!-- Main Content -->
+        <div class="glass-effect rounded-2xl p-8 shadow-2xl space-y-8">
+            <!-- Overview -->
+            <section>
+                <h2 class="text-2xl font-bold mb-4 flex items-center gap-2">
+                    <i data-lucide="info" class="w-6 h-6"></i>
+                    Overview
+                </h2>
+                <p class="text-white/80 leading-relaxed">
+                    WorkEmailChecker API provides instant email validation and classification services. 
+                    It can detect personal emails, corporate emails, disposable emails, and validate 
+                    email syntax and domain deliverability.
+                </p>
+            </section>
+
+            <!-- Base URL -->
+            <section>
+                <h2 class="text-2xl font-bold mb-4 flex items-center gap-2">
+                    <i data-lucide="link" class="w-6 h-6"></i>
+                    Base URL
+                </h2>
+                <div class="glass-effect rounded-lg p-4">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-white/80">Base URL</span>
+                        <button class="copy-btn bg-white/10 px-3 py-1 rounded text-white text-sm" data-target="base-url">Copy</button>
+                        <span class="copy-msg text-green-400 text-xs hidden">Copied</span>
+                    </div>
+                    <pre id="base-url"><code>https://workemailchecker.com/api</code></pre>
+                </div>
+            </section>
+
+            <!-- Authentication -->
+            <section>
+                <h2 class="text-2xl font-bold mb-4 flex items-center gap-2">
+                    <i data-lucide="key" class="w-6 h-6"></i>
+                    Authentication
+                </h2>
+                <p class="text-white/80 leading-relaxed">
+                    No authentication is required. The API is free to use with rate limiting applied.
+                </p>
+            </section>
+
+            <!-- Rate Limiting -->
+            <section>
+                <h2 class="text-2xl font-bold mb-4 flex items-center gap-2">
+                    <i data-lucide="gauge" class="w-6 h-6"></i>
+                    Rate Limiting
+                </h2>
+                <div class="glass-effect rounded-lg p-4">
+                    <p class="text-white/80 mb-2">
+                        <strong>Limit:</strong> 5 requests per second per IP address
+                    </p>
+                    <p class="text-white/80">
+                        <strong>Burst:</strong> Up to 10 requests in a short period
+                    </p>
+                    <p class="text-white/80">
+                        <strong>AI Mode:</strong> 0.5 requests per second per IP, burst 1
+                    </p>
+                    <p class="text-white/60 text-sm mt-2">
+                        If you exceed the rate limit, you'll receive a 429 status code with a retry message.
+                    </p>
+                </div>
+            </section>
+
+            <!-- Endpoints -->
+            <section>
+                <h2 class="text-2xl font-bold mb-6 flex items-center gap-2">
+                    <i data-lucide="server" class="w-6 h-6"></i>
+                    Endpoints
+                </h2>
+
+                <!-- Check Email Endpoint -->
+                <div class="space-y-4">
+                    <div class="glass-effect rounded-lg p-6">
+                        <div class="flex items-center justify-between mb-4">
+                            <h3 class="text-xl font-semibold">Check Email</h3>
+                            <span class="bg-green-500 text-white px-3 py-1 rounded-full text-sm font-medium">POST</span>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <h4 class="font-semibold mb-2">Endpoint</h4>
+                            <code>/check</code>
+                        </div>
+
+                        <div class="mb-4">
+                            <h4 class="font-semibold mb-2">Request Body</h4>
+                            <pre><code>{
+  "email": "user@example.com"
+}</code></pre>
+                            <div class="mt-3">
+                                <h4 class="font-semibold mb-2">Request Body (AI Mode)</h4>
+                                <pre><code>{
+  "email": "user@example.com",
+  "mode": "ai"
+}</code></pre>
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <h4 class="font-semibold mb-2">Response (Success)</h4>
+                            <pre><code>{
+  "email": "user@example.com",
+  "valid": true,
+  "syntax_valid": true,
+  "domain_valid": true,
+  "mx_records_found": true,
+  "provider_name": "Google",
+  "provider_type": "personal",
+  "is_disposable": false,
+  "is_corporate": false,
+  "is_personal": true,
+  "corporate_domain": null,
+  "message": "Personal email detected"
+}</code></pre>
+                        </div>
+
+                        <div>
+                            <h4 class="font-semibold mb-2">Response (Corporate Email)</h4>
+                            <pre><code>{
+  "email": "employee@google.com",
+  "valid": true,
+  "syntax_valid": true,
+  "domain_valid": true,
+  "mx_records_found": true,
+  "provider_name": "Google",
+  "provider_type": "corporate",
+  "is_disposable": false,
+  "is_corporate": true,
+  "is_personal": false,
+  "corporate_domain": "google.com",
+  "message": "Corporate email detected"
+}</code></pre>
+                        </div>
+                    </div>
+
+                    <!-- Health Check Endpoint -->
+                    <div class="glass-effect rounded-lg p-6">
+                        <div class="flex items-center justify-between mb-4">
+                            <h3 class="text-xl font-semibold">Health Check</h3>
+                            <span class="bg-blue-500 text-white px-3 py-1 rounded-full text-sm font-medium">GET</span>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <h4 class="font-semibold mb-2">Endpoint</h4>
+                            <code>/health</code>
+                        </div>
+
+                        <div>
+                            <h4 class="font-semibold mb-2">Response</h4>
+                            <pre><code>{
+  "status": "healthy",
+  "service": "WorkEmailChecker"
+}</code></pre>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Response Fields -->
+            <section>
+                <h2 class="text-2xl font-bold mb-4 flex items-center gap-2">
+                    <i data-lucide="list" class="w-6 h-6"></i>
+                    Response Fields
+                </h2>
+                <div class="glass-effect rounded-lg overflow-hidden">
+                    <table class="w-full">
+                        <thead class="bg-white/10">
+                            <tr>
+                                <th class="text-left p-3 font-semibold">Field</th>
+                                <th class="text-left p-3 font-semibold">Type</th>
+                                <th class="text-left p-3 font-semibold">Description</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-white/10">
+                            <tr>
+                                <td class="p-3"><code>email</code></td>
+                                <td class="p-3">string</td>
+                                <td class="p-3 text-white/80">The email address that was validated</td>
+                            </tr>
+                            <tr>
+                                <td class="p-3"><code>valid</code></td>
+                                <td class="p-3">boolean</td>
+                                <td class="p-3 text-white/80">Overall validation result</td>
+                            </tr>
+                            <tr>
+                                <td class="p-3"><code>syntax_valid</code></td>
+                                <td class="p-3">boolean</td>
+                                <td class="p-3 text-white/80">Email format validation</td>
+                            </tr>
+                            <tr>
+                                <td class="p-3"><code>domain_valid</code></td>
+                                <td class="p-3">boolean</td>
+                                <td class="p-3 text-white/80">Domain validation status</td>
+                            </tr>
+                            <tr>
+                                <td class="p-3"><code>mx_records_found</code></td>
+                                <td class="p-3">boolean</td>
+                                <td class="p-3 text-white/80">MX records availability</td>
+                            </tr>
+                            <tr>
+                                <td class="p-3"><code>provider_name</code></td>
+                                <td class="p-3">string</td>
+                                <td class="p-3 text-white/80">Email service provider name</td>
+                            </tr>
+                            <tr>
+                                <td class="p-3"><code>provider_type</code></td>
+                                <td class="p-3">string</td>
+                                <td class="p-3 text-white/80">Type: personal, corporate, disposable, unknown</td>
+                            </tr>
+                            <tr>
+                                <td class="p-3"><code>is_disposable</code></td>
+                                <td class="p-3">boolean</td>
+                                <td class="p-3 text-white/80">Whether the email is from a disposable provider</td>
+                            </tr>
+                            <tr>
+                                <td class="p-3"><code>is_corporate</code></td>
+                                <td class="p-3">boolean</td>
+                                <td class="p-3 text-white/80">Whether the email is a corporate email</td>
+                            </tr>
+                            <tr>
+                                <td class="p-3"><code>is_personal</code></td>
+                                <td class="p-3">boolean</td>
+                                <td class="p-3 text-white/80">Whether the email is a personal email</td>
+                            </tr>
+                            <tr>
+                                <td class="p-3"><code>corporate_domain</code></td>
+                                <td class="p-3">string|null</td>
+                                <td class="p-3 text-white/80">Corporate domain (if applicable)</td>
+                            </tr>
+                            <tr>
+                                <td class="p-3"><code>message</code></td>
+                                <td class="p-3">string</td>
+                                <td class="p-3 text-white/80">Additional information or error message</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            
+            <section>
+                <h2 class="text-2xl font-bold mb-4 flex items-center gap-2">
+                    <i data-lucide="alert-triangle" class="w-6 h-6"></i>
+                    Error Responses
+                </h2>
+                <div class="space-y-4">
+                    <div class="glass-effect rounded-lg p-4">
+                        <h4 class="font-semibold mb-2">Rate Limit Exceeded (429)</h4>
+                        <pre><code>{
+  "error": "Rate limit exceeded. Please try again later.",
+  "retry_after": 60
+}</code></pre>
+                    </div>
+                    <div class="glass-effect rounded-lg p-4">
+                        <h4 class="font-semibold mb-2">AI Rate Limit Exceeded (429)</h4>
+                        <pre><code>{
+  "error": "AI rate limit exceeded",
+  "retry_after": 2
+}</code></pre>
+                    </div>
+                    <div class="glass-effect rounded-lg p-4">
+                        <h4 class="font-semibold mb-2">Bad Request (400)</h4>
+                        <pre><code>{
+  "error": "Email is required"
+}</code></pre>
+                    </div>
+                    <div class="glass-effect rounded-lg p-4">
+                        <h4 class="font-semibold mb-2">Method Not Allowed (405)</h4>
+                        <pre><code>{
+  "error": "Method not allowed"
+}</code></pre>
+                    </div>
+                    <div class="glass-effect rounded-lg p-4">
+                        <h4 class="font-semibold mb-2">AI Upstream Error (502)</h4>
+                        <pre><code>{
+  "error": "AI check failed"
+}</code></pre>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Examples -->
+            <section>
+                <h2 class="text-2xl font-bold mb-4 flex items-center gap-2">
+                    <i data-lucide="code" class="w-6 h-6"></i>
+                    Usage Examples
+                </h2>
+                <div class="space-y-4">
+                    <div class="glass-effect rounded-lg p-4">
+                        <h4 class="font-semibold mb-2">cURL</h4>
+                        <div class="flex items-center justify-end mb-2"><button class="copy-btn bg-white/10 px-3 py-1 rounded text-white text-sm" data-target="curl-standard">Copy</button><span class="copy-msg text-green-400 text-xs hidden ml-2">Copied</span></div>
+                        <pre id="curl-standard"><code>curl -X POST https://workemailchecker.com/api/check \
+  -H "Content-Type: application/json" \
+  -d '{"email": "user@example.com"}'</code></pre>
+                        <div class="flex items-center justify-end mt-2 mb-2"><button class="copy-btn bg-white/10 px-3 py-1 rounded text-white text-sm" data-target="curl-ai">Copy</button><span class="copy-msg text-green-400 text-xs hidden ml-2">Copied</span></div>
+                        <pre id="curl-ai"><code>curl -X POST https://workemailchecker.com/api/check \
+  -H "Content-Type: application/json" \
+  -d '{"email": "user@example.com", "mode": "ai"}'</code></pre>
+                    </div>
+                    <div class="glass-effect rounded-lg p-4">
+                        <h4 class="font-semibold mb-2">JavaScript (fetch)</h4>
+                        <div class="flex items-center justify-end mb-2"><button class="copy-btn bg-white/10 px-3 py-1 rounded text-white text-sm" data-target="js-standard">Copy</button><span class="copy-msg text-green-400 text-xs hidden ml-2">Copied</span></div>
+                        <pre id="js-standard"><code>fetch('https://workemailchecker.com/api/check', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+  },
+  body: JSON.stringify({
+    email: 'user@example.com'
+  })
+})
+.then(response => response.json())
+.then(data => console.log(data));</code></pre>
+                        <div class="flex items-center justify-end mt-2 mb-2"><button class="copy-btn bg-white/10 px-3 py-1 rounded text-white text-sm" data-target="js-ai">Copy</button><span class="copy-msg text-green-400 text-xs hidden ml-2">Copied</span></div>
+                        <pre id="js-ai"><code>fetch('https://workemailchecker.com/api/check', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+  },
+  body: JSON.stringify({
+    email: 'user@example.com',
+    mode: 'ai'
+  })
+})
+.then(response => response.json())
+.then(data => console.log(data));</code></pre>
+                    </div>
+                    <div class="glass-effect rounded-lg p-4">
+                        <h4 class="font-semibold mb-2">Python</h4>
+                        <div class="flex items-center justify-end mb-2"><button class="copy-btn bg-white/10 px-3 py-1 rounded text-white text-sm" data-target="py-standard">Copy</button><span class="copy-msg text-green-400 text-xs hidden ml-2">Copied</span></div>
+                        <pre id="py-standard"><code>import requests
+
+response = requests.post(
+    'https://workemailchecker.com/api/check',
+    json={'email': 'user@example.com'}
+)
+data = response.json()
+print(data)</code></pre>
+                        <div class="flex items-center justify-end mt-2 mb-2"><button class="copy-btn bg-white/10 px-3 py-1 rounded text-white text-sm" data-target="py-ai">Copy</button><span class="copy-msg text-green-400 text-xs hidden ml-2">Copied</span></div>
+                        <pre id="py-ai"><code>import requests
+
+response = requests.post(
+    'https://workemailchecker.com/api/check',
+    json={'email': 'user@example.com', 'mode': 'ai'}
+)
+print(response.json())</code></pre>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- Back to Home -->
+        <div class="text-center mt-8">
+            <a href="/" class="inline-flex items-center gap-2 px-6 py-3 bg-white text-purple-600 font-semibold rounded-lg hover:bg-purple-50 transition-colors">
+                <i data-lucide="arrow-left" class="w-4 h-4"></i>
+                Back to Home
+            </a>
+        </div>
+    </div>
+
+    <script>
+        lucide.createIcons();
+        const copyButtons = document.querySelectorAll('.copy-btn');
+        copyButtons.forEach(btn => {
+            btn.addEventListener('click', async () => {
+                const targetId = btn.getAttribute('data-target');
+                const codeEl = document.getElementById(targetId)?.querySelector('code');
+                if (!codeEl) return;
+                const text = codeEl.innerText;
+                try {
+                    await navigator.clipboard.writeText(text);
+                    const msg = btn.nextElementSibling;
+                    if (msg) {
+                        msg.classList.remove('hidden');
+                        setTimeout(() => msg.classList.add('hidden'), 1200);
+                    }
+                } catch {}
+            });
+        });
+    </script>
+</body>
+</html>
