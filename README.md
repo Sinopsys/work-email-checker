@@ -1,69 +1,79 @@
-# WorkEmailChecker 🚀
+# WorkEmailChecker
+A fast, free, and accurate email classification and validation service that distinguishes between legitimate corporate (employees), personal, and disposable email addresses.
 
-A fast, free, and accurate email validation and classification service that distinguishes between personal, disposable, and legitimate corporate email addresses.
+![Go](https://img.shields.io/badge/Go-1.21-blue)
+![Docker](https://img.shields.io/badge/Docker-Compose-success)
+![Rate%20Limit](https://img.shields.io/badge/Rate%20Limit-5%20RPS-brightgreen)
+![AI%20Mode](https://img.shields.io/badge/AI%20Mode-optional-orange)
+![License](https://img.shields.io/badge/License-GPL-lightgrey)
 
-## 🎯 Mission
+## Overview
 
-Modern SaaS platforms need to distinguish between personal, disposable, and legitimate corporate email addresses for:
+- Validates email syntax and deliverability (MX/A records)
+- Distinguishes personal, disposable, and corporate emails
+- Detects common providers (Google, Microsoft, Yandex, etc.)
+- Optional AI verification for higher accuracy using Perplexity Sonar
+- Web UI and JSON API
+- The service is rate-limited to 5 requests per second per IP in normal mode
 
-- **B2B onboarding**: Ensuring only real employees access company dashboards
-- **Security**: Preventing bad actors from impersonating companies  
-- **Fraud prevention**: Blocking temporary emails from abuse
-- **Data quality**: Maintaining clean user databases
+## Use this project if you need:
+- Ensure B2B customers in your project use real company emails
+- Identify genuine business leads
+- Block disposable emails from signups (fraud prevention)
+- Maintain clean email databases
+- Target corporate vs personal emails in your marketing campaigns
 
-## ✨ Features
+## Quick start for local run
 
-- **Syntax Validation**: Catches formatting errors like missing "@" symbol
-- **MX Records Check**: Ensures the email domain can actually receive emails
-- **Provider Detection**: Identifies email service providers (Google, Microsoft, etc.)
-- **Disposable Email Detection**: Identifies temporary, one-time-use addresses
-- **Corporate Email Detection**: Distinguishes business vs personal emails
-- **Rate Limiting**: 5 requests per second per user
-- **REST API**: Simple JSON API for integration
-- **Web Interface**: Beautiful, modern web interface
-- **Free & Open Source**: Completely free to use and deploy
+### Copy .env.example to .env
 
-## 🚀 Quick Start
+```bash
+cp .env.example .env
+```
+Then, enable or disable AI mode by setting `ENABLE_AI_CHECK=true` or `ENABLE_AI_CHECK=false` in .env.
+Add **your** `PERPLEXITY_API_KEY` if you enable AI mode.
 
 ### Using Docker Compose (Recommended)
 
 ```bash
-# Clone the repository
 git clone https://github.com/yourusername/workemailchecker.git
 cd workemailchecker
-
-# Start the service
-docker-compose up -d
-
-# The service will be available at http://localhost:8080
+docker compose up -d --build
+# http://localhost:8080
 ```
 
 ### Manual Installation
 
 ```bash
-# Install Go 1.21 or later
-# Clone the repository
 git clone https://github.com/yourusername/workemailchecker.git
 cd workemailchecker
-
-# Install dependencies
 go mod download
-
-# Build and run
 go build -o workemailchecker .
 ./workemailchecker
 ```
 
-## 📋 API Usage
+## API
 
 ### Check Email Endpoint
 
-```bash
+```http
 POST /api/check
 Content-Type: application/json
 
 {
   "email": "user@example.com"
+}
+```
+
+AI mode:
+
+```http
+POST /api/check
+Content-Type: application/json
+
+{
+  "email": "user@example.com",
+  "mode": "ai"
 }
 ```
 
@@ -88,106 +98,60 @@ Content-Type: application/json
 
 ### Rate Limiting
 
-- **Limit**: 5 requests per second per IP address
-- **Burst**: Up to 10 requests in a short period
-- **Response**: 429 status code when rate limit exceeded
+- API: 5 requests/sec per IP (burst 10)
+- AI: 0.5 requests/sec per IP (burst 1)
+- Exceeding returns `429` with `retry_after`
 
-## 🌐 Web Interface
+## Web UI
 
 Visit `http://localhost:8080` to access the web interface:
 
-- Clean, modern design
-- Real-time email validation
-- Detailed classification results
-- API documentation at `/docs`
+- Email input with validation results
+- Toggle for “Slow, higher‑accuracy check (AI)”
+- Documentation at `/docs`
 
-## 🏗️ Configuration
+## Configuration
 
 Environment variables:
 
-- `PORT`: Server port (default: 8080)
-- `RATE_LIMIT_RPS`: Rate limit per second (default: 5)
-- `RATE_LIMIT_BURST`: Rate limit burst (default: 10)
-- `FREE_PROVIDERS_URL`: URL for free email providers list
+- `PORT`: server port (default: 8080)
+- `RATE_LIMIT_RPS`: API requests per second (default: 5)
+- `RATE_LIMIT_BURST`: API burst (default: 10)
+- `FREE_PROVIDERS_URL`: free provider domains JSON
+- `ENABLE_AI_CHECK`: enable AI verification (default: false)
+- `PERPLEXITY_API_URL`: `https://api.perplexity.ai/chat/completions`
+- `PERPLEXITY_MODEL`: `sonar`
+- `PERPLEXITY_API_KEY`: your API key
+- `AI_RATE_LIMIT_RPS`: 0.5
+- `AI_RATE_LIMIT_BURST`: 1
+- `CORPORATE_OVERRIDES`: CSV of domains to force corporate
+- `PERSONAL_OVERRIDES`: CSV of domains to force personal
 
-## 🔧 Development
 
-```bash
-# Run tests
-go test ./...
+## Corporate domain detection
 
-# Run with hot reload (install air first)
-air
+The service includes intelligent corporate domain mappings, just for example:
 
-# Format code
-go fmt ./...
+- **Google**: `@google.com`
+- **Microsoft**: `@microsoft.com`
+- **Yandex employees**: `@yandex-team.ru`, `@yandex-team.com` (consumer `@yandex.ru`, `@ya.com` are personal)
+- **ByteDance**: `@bytedance.com`
+- **Meta**: `@meta.com`, `@fb.com`
 
-# Lint code (install golangci-lint first)
-golangci-lint run
-```
+And many more tech and non-tech companies!
 
-## 🐳 Docker Deployment
-
-```bash
-# Build image
-docker build -t workemailchecker .
-
-# Run container
-docker run -p 8080:8080 workemailchecker
-
-# Or use docker-compose
-docker-compose up -d
-```
-
-## 🔍 Corporate Domain Detection
-
-The service includes intelligent corporate domain mappings:
-
-- **Google**: `@google.com`, `@gmail.com` → `google.com`
-- **Microsoft**: `@microsoft.com`, `@outlook.com`, `@hotmail.com`, `@live.com` → `microsoft.com`
-- **Yandex**: `@yandex.ru`, `@ya.ru` → `yandex-team.ru`
-- **ByteDance**: `@bytedance.com`, `@tiktok.com` → `bytedance.com`
-- **Meta**: `@meta.com`, `@facebook.com`, `@instagram.com` → `meta.com`
-
-And many more major tech companies!
-
-## 🛡️ Security Features
-
-- Rate limiting to prevent abuse
-- Input validation and sanitization
-- CORS headers for web integration
-- No authentication required (public API)
-
-## 📊 Performance
-
-- Fast Go backend
-- Efficient DNS lookups
-- Minimal dependencies
-- Lightweight Docker image
-- Sub-100ms response times for most requests
-
-## 🌟 Use Cases
-
-- **SaaS Onboarding**: Ensure B2B customers use real company emails
-- **Lead Qualification**: Identify genuine business prospects
-- **Fraud Prevention**: Block disposable emails from signups
-- **Data Quality**: Maintain clean email databases
-- **Marketing**: Target corporate vs personal email campaigns
-
-## 🤝 Contributing
+## Contributing
 
 Contributions are welcome! Please feel free to submit a Pull Request.
 
-## 📄 License
+## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the GPL License - see the [LICENSE](LICENSE) file for details.
 
-## 🙏 Acknowledgments
+## Acknowledgments
 
-- [Free Email Domains](https://github.com/Kikobeats/free-email-domains) for the free provider list
-- [Gin Web Framework](https://github.com/gin-gonic/gin) for the HTTP framework
-- [Lucide Icons](https://lucide.dev/) for the beautiful icons
+- [Free Email Domains](https://github.com/Kikobeats/free-email-domains) for the free provider list, which is used in our quick check.
 
 ---
 
-**Made with ❤️ for the developer community**
+**Made with ❤️ for the community**
