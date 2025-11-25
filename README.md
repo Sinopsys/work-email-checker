@@ -1,4 +1,8 @@
 # WorkEmailChecker
+
+https://workemailchecker.com/
+
+
 A fast, free, and accurate email classification and validation service that distinguishes between legitimate corporate (employees), personal, and disposable email addresses.
 
 ![Go](https://img.shields.io/badge/Go-1.21-blue)
